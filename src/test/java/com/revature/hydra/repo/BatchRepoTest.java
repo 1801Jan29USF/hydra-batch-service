@@ -11,10 +11,13 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.revature.hydra.entities.Batch;
 import com.revature.hydra.entities.BatchTrainee;
@@ -25,27 +28,27 @@ import com.revature.hydra.repository.BatchRepo;
 @DataJpaTest
 public class BatchRepoTest {
 
+	static private MockMvc mvc;
+
+	@InjectMocks
+	static private BatchRepo br;
+
+	private static Batch batch;
+
 	@Autowired
 	private TestEntityManager entityManager;
 
-	@Autowired
-	private BatchRepo batchRepo;
-
-	// private static Batch batch;
-
 	@BeforeClass
 	static public void prepare() {
-
-	}
-
-	@Test
-	public void whenFindByBatchId_thenReturnBatch() {
+		System.out.println("************");
+		System.out.println(br);
+		batch = new Batch();
+		mvc = MockMvcBuilders.standaloneSetup(br).build();
 		Set<Integer> set = new HashSet<>();
 		Set<Integer> skills = new HashSet<>();
 		Trainer trainer = new Trainer(0, null, null, 0);
 		List<BatchTrainee> trainees = new ArrayList<>();
-		Batch batch = new Batch();
-		batch.setBatchId(40);
+		batch.setBatchId(0);
 		batch.setCotrainer(trainer);
 		batch.setCurriculum("curriculum");
 		batch.setEndDate(new Timestamp(100));
@@ -60,9 +63,14 @@ public class BatchRepoTest {
 		batch.setTrainingName("trainingname");
 		batch.setTrainingType("trainingtype");
 
+	}
+
+	@Test
+	public void whenFindByBatchId_thenReturnBatch() {
+
 		entityManager.persist(batch);
 		entityManager.flush();
-		Batch found = batchRepo.findByBatchId(batch.getBatchId());
+		Batch found = br.findByBatchId(batch.getBatchId());
 		assertThat(found.getBatchId()).isEqualTo(batch.getBatchId());
 	}
 
